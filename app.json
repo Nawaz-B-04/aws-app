@@ -1,16 +1,19 @@
 {
   "expo": {
-    "name": "expo-temp",
-    "slug": "expo-temp",
-    "version": "1.0.0",
+    "name": "AWS Practice",
+    "slug": "aws-practice",
+    "owner": "nawaz_343",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expotemp",
+    "scheme": "awspractice",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.siddh.awspractice",
+      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -20,7 +23,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -28,7 +31,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#12675F",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
@@ -37,6 +40,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f55675d7-a20a-4c69-9354-3112f9db15e4"
+      }
     }
   }
 }

@@ -1,15 +1,17 @@
-export type TopicId = 'iam' | 'ec2' | 'ebs';
+export type TopicId = string;
+export type Difficulty = 'basic' | 'exam' | 'tricky';
+export type SessionDifficulty = Difficulty | 'mixed';
 
 export type Subtopic = {
   id: string;
   title: string;
+  taskId: string;
 };
 
 export type Topic = {
   id: TopicId;
   name: string;
   description: string;
-  progress: number;
   accent: string;
   subtopics: Subtopic[];
 };
@@ -20,49 +22,65 @@ export type QuestionOption = {
   explanation: string;
 };
 
+export type SourceReference = { title: string; url: string; section: string };
+export type QuestionGrounding = {
+  status: 'aws_docs' | 'no_sources' | 'sample';
+  sources: SourceReference[];
+  corpusVersion?: string;
+};
+
 export type Question = {
   id: string;
   topicId: TopicId;
   subtopic: string;
-  difficulty: 'basic' | 'exam' | 'tricky';
+  conceptId: string;
+  difficulty: Difficulty;
   text: string;
   options: QuestionOption[];
-  correctOptionId: string;
+  kind: 'single' | 'multiple';
+  correctOptionIds: string[];
   explanation: string;
   memoryTip: string;
+  conceptSummary: string;
+  grounding?: QuestionGrounding;
 };
 
-export type Concept = {
-  id: string;
+export type QuestionRequest = {
   topicId: TopicId;
-  title: string;
-  whatItIs: string;
-  example: string;
-  examPoint: string;
-  confusion: string;
-  remember: string;
+  subtopic?: string;
+  taskId: string;
+  kind: 'single' | 'multiple';
+  difficulty: Difficulty;
+  recentQuestionIds: string[];
+  recentConceptIds: string[];
+  recentTexts: string[];
+  exam?: boolean;
 };
 
-export type TopicPerformance = {
-  topicId: TopicId;
-  accuracy: number;
-  answered: number;
+export type QuestionSourceResult = {
+  question: Question;
+  source: 'generated' | 'mock' | 'review';
+  usedFallback: boolean;
 };
 
-export type UserProgress = {
-  streakDays: number;
-  dailyGoal: number;
-  completedToday: number;
-  overallAccuracy: number;
-  totalAnswered: number;
-  topicPerformance: TopicPerformance[];
-  weakAreas: { topicId: TopicId; name: string; accuracy: number }[];
+export type Attempt = {
+  question: Question;
+  selectedOptionIds: string[];
+  correct: boolean;
+  answeredAt: string;
+  sessionId: string;
 };
 
-export type WrongAnswer = {
-  id: string;
-  questionId: string;
-  topicId: TopicId;
-  concept: string;
-  explanation: string;
+export type SessionMode = 'quick' | 'topic' | 'mixed' | 'custom' | 'full' | 'revision' | 'retry';
+export type StudySession = {
+  id: string; mode: SessionMode; title: string; target: number; difficulty: SessionDifficulty; topicIds: string[];
+  questionPlan: { topicId: string; subtopic: string; taskId: string; kind: 'single' | 'multiple' }[];
+  questions: Question[]; answers: Record<string, string[]>; checkedQuestionIds: string[]; flags: string[]; index: number;
+  status: 'preparing' | 'active' | 'complete'; startedAt?: string; deadlineAt?: string; completedAt?: string;
+  revisionStep?: number;
+  error?: string;
+};
+export type Note = {
+  id: string; topicId: string; subtopic: string; title: string; how: string; when: string;
+  compare: string; trap: string; example: string; tip: string; selfCheck: string; source: string;
 };

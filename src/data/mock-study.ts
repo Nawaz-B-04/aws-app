@@ -1,140 +1,39 @@
-import type { Concept, Question, Topic, UserProgress, WrongAnswer } from '@/types/study';
+import { getTopic, topics } from '@/data/roadmap';
+import type { Question } from '@/types/study';
 
-export const topics: Topic[] = [
-  {
-    id: 'iam', name: 'IAM', description: 'Control who can access AWS resources and what they can do.',
-    progress: 72, accent: '#5672C9',
-    subtopics: [
-      { id: 'iam-roles', title: 'Roles & temporary credentials' },
-      { id: 'iam-policies', title: 'Policies & least privilege' },
-      { id: 'iam-mfa', title: 'MFA & account security' },
-      { id: 'iam-users', title: 'Users & groups' },
-    ],
-  },
-  {
-    id: 'ec2', name: 'EC2', description: 'Choose, launch, and secure compute instances.',
-    progress: 58, accent: '#B7744B',
-    subtopics: [
-      { id: 'ec2-purchase', title: 'Purchasing options' },
-      { id: 'ec2-security', title: 'Security groups' },
-      { id: 'ec2-types', title: 'Instance types' },
-      { id: 'ec2-lifecycle', title: 'Instance lifecycle' },
-    ],
-  },
-  {
-    id: 'ebs', name: 'EBS', description: 'Understand persistent block storage for EC2.',
-    progress: 43, accent: '#438B83',
-    subtopics: [
-      { id: 'ebs-types', title: 'Volume types' },
-      { id: 'ebs-snapshots', title: 'Snapshots' },
-      { id: 'ebs-encryption', title: 'Encryption' },
-      { id: 'ebs-performance', title: 'IOPS & throughput' },
-    ],
-  },
-];
-
+export { getTopic, topics };
+const option = (id: string, text: string, explanation: string) => ({ id, text, explanation });
 export const questions: Question[] = [
-  {
-    id: 'q-ec2-host', topicId: 'ec2', subtopic: 'Purchasing options', difficulty: 'exam',
-    text: 'A company has software licenses billed by physical CPU sockets and cores. Which EC2 option gives visibility into the underlying physical server?',
-    options: [
-      { id: 'a', text: 'Reserved Instance', explanation: 'A Reserved Instance is a billing discount; it does not expose a physical host.' },
-      { id: 'b', text: 'Dedicated Instance', explanation: 'It runs on dedicated hardware, but does not provide the same host-level visibility.' },
-      { id: 'c', text: 'Dedicated Host', explanation: 'A Dedicated Host exposes the physical host, including sockets and cores for licensing.' },
-      { id: 'd', text: 'Spot Instance', explanation: 'Spot uses spare capacity at a discount and can be interrupted.' },
-    ],
-    correctOptionId: 'c',
-    explanation: 'Dedicated Hosts provide an entire physical server for your account and visibility into its hardware. This helps with licenses tied to sockets or cores.',
-    memoryTip: 'Sockets + cores + host licensing → Dedicated Host.',
-  },
-  {
-    id: 'q-iam-role', topicId: 'iam', subtopic: 'Roles & temporary credentials', difficulty: 'basic',
-    text: 'An application on EC2 needs to read from an S3 bucket. What is the recommended way to give it AWS permissions?',
-    options: [
-      { id: 'a', text: 'Store root user access keys on the instance', explanation: 'Root user credentials should never be used by an application.' },
-      { id: 'b', text: 'Attach an IAM role to the instance', explanation: 'An instance role supplies temporary credentials without storing long-lived keys.' },
-      { id: 'c', text: 'Put an IAM user password in user data', explanation: 'A password does not provide programmatic AWS access and should not be stored in user data.' },
-      { id: 'd', text: 'Make the bucket public', explanation: 'Public access would expose the bucket and is unrelated to granting the application permission.' },
-    ],
-    correctOptionId: 'b',
-    explanation: 'An EC2 instance role lets the application receive temporary credentials automatically. Grant the role only the S3 permissions it needs.',
-    memoryTip: 'AWS workload on EC2 → instance role, not stored keys.',
-  },
-  {
-    id: 'q-ebs-snapshot', topicId: 'ebs', subtopic: 'Snapshots', difficulty: 'exam',
-    text: 'You need a backup of an EBS volume that you can use later to create a new volume. Which feature should you use?',
-    options: [
-      { id: 'a', text: 'An EBS snapshot', explanation: 'A snapshot is a point-in-time backup used to create new EBS volumes.' },
-      { id: 'b', text: 'An EC2 security group', explanation: 'A security group controls network traffic, not storage backups.' },
-      { id: 'c', text: 'An Elastic IP address', explanation: 'An Elastic IP is a static public IPv4 address, not a backup.' },
-      { id: 'd', text: 'EC2 user data', explanation: 'User data runs startup commands; it does not preserve volume contents.' },
-    ],
-    correctOptionId: 'a',
-    explanation: 'EBS snapshots preserve volume data at a point in time. You can create another EBS volume from a snapshot when needed.',
-    memoryTip: 'EBS backup → snapshot → new volume.',
-  },
-  {
-    id: 'q-ec2-sg', topicId: 'ec2', subtopic: 'Security groups', difficulty: 'tricky',
-    text: 'An EC2 instance must accept HTTPS traffic from the internet. What should its security group allow?',
-    options: [
-      { id: 'a', text: 'Inbound TCP port 443 from the required source', explanation: 'HTTPS uses TCP port 443; an inbound rule allows clients to connect.' },
-      { id: 'b', text: 'Outbound TCP port 443 only', explanation: 'An outbound rule alone does not permit new inbound client connections.' },
-      { id: 'c', text: 'Inbound TCP port 22 from everyone', explanation: 'Port 22 is normally SSH, not HTTPS.' },
-      { id: 'd', text: 'No rules because security groups allow all inbound traffic', explanation: 'Security groups deny inbound traffic unless a rule allows it.' },
-    ],
-    correctOptionId: 'a',
-    explanation: 'Add an inbound rule for TCP 443 from the clients that should reach the instance. Security groups are stateful, so response traffic is automatically allowed.',
-    memoryTip: 'Incoming HTTPS → inbound TCP 443.',
-  },
+  { id: 'sample-iam-role', topicId: 'iam', subtopic: 'Roles and temporary credentials', conceptId: 'iam-role', difficulty: 'basic', kind: 'single',
+    text: 'An EC2 application needs to read one S3 bucket. How should it receive AWS permissions?',
+    options: [option('a', 'Store root access keys on the instance', 'Root credentials should not be used by applications.'), option('b', 'Attach an IAM role to the instance', 'A role gives the workload temporary credentials.'), option('c', 'Save an IAM password in user data', 'A password is not programmatic authorization.'), option('d', 'Make the bucket public', 'Public access exposes data unnecessarily.')],
+    correctOptionIds: ['b'], explanation: 'An instance role supplies temporary credentials. Grant it only the S3 permissions needed.', memoryTip: 'Workload on AWS: use a role.', conceptSummary: 'Roles supply temporary credentials to trusted workloads.' },
+  { id: 'sample-ec2-ami', topicId: 'ec2', subtopic: 'AMI and launch templates', conceptId: 'ec2-ami', difficulty: 'exam', kind: 'single',
+    text: 'A team must launch several identical EC2 instances with the same operating system and preinstalled software. What should it create?',
+    options: [option('a', 'An Amazon Machine Image', 'An AMI contains the image used to launch matching instances.'), option('b', 'An EBS snapshot only', 'A snapshot backs up a volume but is not a complete instance launch image.'), option('c', 'A security group', 'Security groups control network traffic.'), option('d', 'A Reserved Instance', 'A Reserved Instance is a billing commitment.')],
+    correctOptionIds: ['a'], explanation: 'An AMI is a reusable instance image; a launch template can also save instance configuration.', memoryTip: 'AMI = launch image.', conceptSummary: 'AMIs define the software image used to launch EC2 instances.' },
+  { id: 'sample-ebs-snapshot', topicId: 'ebs', subtopic: 'Snapshots and recovery', conceptId: 'ebs-snapshot', difficulty: 'exam', kind: 'single',
+    text: 'Which feature provides a point-in-time backup that can be used to create a new EBS volume?',
+    options: [option('a', 'EBS snapshot', 'Snapshots back up EBS volumes and can create new volumes.'), option('b', 'Security group', 'This controls traffic, not backups.'), option('c', 'Elastic IP', 'This is a static public IPv4 address.'), option('d', 'EC2 user data', 'This runs startup commands.')],
+    correctOptionIds: ['a'], explanation: 'Create an EBS snapshot and later restore it as a new volume.', memoryTip: 'Volume backup = snapshot.', conceptSummary: 'Snapshots are point-in-time backups of EBS volumes.' },
+  { id: 'sample-iam-multi', topicId: 'iam', subtopic: 'Policies and least privilege', conceptId: 'iam-policy-evaluation', difficulty: 'tricky', kind: 'multiple',
+    text: 'Which TWO statements about IAM policy evaluation are correct? Select two.',
+    options: [option('a', 'An explicit deny overrides an allow', 'Explicit deny has precedence.'), option('b', 'Access is allowed by default', 'Requests are implicitly denied by default.'), option('c', 'An identity policy can grant a permitted action', 'An applicable allow can grant access if no other policy blocks it.'), option('d', 'A group is a principal that assumes roles', 'Groups collect users but are not principals.'), option('e', 'A security group grants IAM API permissions', 'Security groups govern network traffic.')],
+    correctOptionIds: ['a', 'c'], explanation: 'IAM starts with implicit deny. An applicable allow grants access unless an explicit deny or another boundary prevents it.', memoryTip: 'Default deny; explicit deny wins.', conceptSummary: 'IAM evaluates allows and denies across applicable policies.' },
+  { id: 'sample-ec2-security', topicId: 'ec2', subtopic: 'Security groups', conceptId: 'ec2-sg', difficulty: 'basic', kind: 'single',
+    text: 'An EC2 web server must accept HTTPS requests. Which security group rule is needed?',
+    options: [option('a', 'Inbound TCP 443 from the required source', 'HTTPS requires inbound TCP 443.'), option('b', 'Outbound TCP 443 only', 'This does not permit new inbound connections.'), option('c', 'Inbound TCP 22 from everyone', 'Port 22 is SSH.'), option('d', 'No rule is needed', 'Inbound traffic is denied by default.')],
+    correctOptionIds: ['a'], explanation: 'Allow inbound TCP port 443 from the intended clients. Return traffic is allowed because security groups are stateful.', memoryTip: 'HTTPS = inbound TCP 443.', conceptSummary: 'Security groups filter instance traffic.' },
+  { id: 'sample-elb-alb', topicId: 'elb-asg', subtopic: 'ALB versus NLB and listeners', conceptId: 'elb-alb-path', difficulty: 'exam', kind: 'single',
+    text: 'A web application must send /api requests to one target group and /images requests to another. Which load balancer should it use?',
+    options: [option('a', 'Application Load Balancer', 'An ALB can route HTTP requests by path.'), option('b', 'Network Load Balancer', 'An NLB routes network connections, not URL paths.'), option('c', 'Auto Scaling group', 'An ASG changes instance capacity; it does not route requests.'), option('d', 'Route 53 hosted zone', 'DNS records do not inspect URL paths.')],
+    correctOptionIds: ['a'], explanation: 'An ALB listener can send requests to target groups based on URL path rules.', memoryTip: 'HTTP path rules = ALB.', conceptSummary: 'ALB handles application-level HTTP routing.' },
+  { id: 'sample-rds-multiaz', topicId: 'rds-aurora-cache', subtopic: 'Multi-AZ versus read replicas', conceptId: 'rds-ha-read', difficulty: 'exam', kind: 'single',
+    text: 'An RDS DB instance needs a standby for automatic failover. Which deployment meets this requirement?',
+    options: [option('a', 'Multi-AZ DB instance', 'A Multi-AZ DB instance has a synchronous standby for failover.'), option('b', 'Read replica only', 'An asynchronous read replica primarily adds read capacity.'), option('c', 'ElastiCache cluster', 'A cache is not an RDS standby.'), option('d', 'RDS Proxy only', 'A proxy pools connections but does not create a standby.')],
+    correctOptionIds: ['a'], explanation: 'Use a Multi-AZ DB instance for a synchronous standby and automatic failover; use read replicas for read scaling.', memoryTip: 'Multi-AZ standby = availability.', conceptSummary: 'A traditional Multi-AZ DB instance maintains a standby in another Availability Zone.' },
+  { id: 'sample-route53-alias', topicId: 'route53', subtopic: 'Alias records and AWS targets', conceptId: 'route53-apex-alias', difficulty: 'exam', kind: 'single',
+    text: 'A team wants example.com itself to point to an Application Load Balancer. Which Route 53 record should it use?',
+    options: [option('a', 'A alias record', 'An alias can point the zone apex to a supported ALB target.'), option('b', 'CNAME at the zone apex', 'A CNAME cannot be created at the zone apex.'), option('c', 'MX record', 'MX records identify mail servers.'), option('d', 'TXT record', 'TXT records store text values, not load balancer routing.')],
+    correctOptionIds: ['a'], explanation: 'Route 53 alias records support the zone apex and can target an ALB.', memoryTip: 'Root domain to ALB = alias.', conceptSummary: 'Alias records connect names, including a zone apex, to supported AWS targets.' },
 ];
-
-export const concepts: Concept[] = [
-  {
-    id: 'iam-roles', topicId: 'iam', title: 'IAM roles',
-    whatItIs: 'A role is a set of permissions that a trusted person or service can assume temporarily.',
-    example: 'An EC2 instance assumes a role to read objects from one S3 bucket.',
-    examPoint: 'Use roles and temporary credentials for workloads instead of embedding access keys.',
-    confusion: 'An IAM user has long-term credentials; a role is assumed to get temporary credentials.',
-    remember: 'Workload needs AWS access → role.',
-  },
-  {
-    id: 'ec2-hosts', topicId: 'ec2', title: 'Dedicated Hosts',
-    whatItIs: 'A physical EC2 server dedicated to one AWS account, with host-level visibility.',
-    example: 'Bring a license that counts physical CPU sockets or cores.',
-    examPoint: 'Choose a Dedicated Host when licensing needs host-level information or placement control.',
-    confusion: 'Dedicated Instances use dedicated hardware but do not offer the same host visibility.',
-    remember: 'Physical host details → Dedicated Host.',
-  },
-  {
-    id: 'ebs-snapshots', topicId: 'ebs', title: 'EBS snapshots',
-    whatItIs: 'A point-in-time backup of an EBS volume.',
-    example: 'Snapshot a production volume before changing its data, then restore to a new volume if needed.',
-    examPoint: 'Snapshots can be used to create new volumes and are incremental after the first snapshot.',
-    confusion: 'A snapshot is a backup; a live EBS volume is block storage attached to an instance.',
-    remember: 'Backup a volume → snapshot.',
-  },
-];
-
-export const userProgress: UserProgress = {
-  streakDays: 6, dailyGoal: 10, completedToday: 4, overallAccuracy: 68, totalAnswered: 124,
-  topicPerformance: [
-    { topicId: 'iam', accuracy: 76, answered: 42 },
-    { topicId: 'ec2', accuracy: 64, answered: 51 },
-    { topicId: 'ebs', accuracy: 61, answered: 31 },
-  ],
-  weakAreas: [
-    { topicId: 'ebs', name: 'EBS volume types', accuracy: 48 },
-    { topicId: 'ec2', name: 'EC2 purchasing', accuracy: 53 },
-    { topicId: 'iam', name: 'IAM policies', accuracy: 64 },
-  ],
-};
-
-export const wrongAnswers: WrongAnswer[] = [
-  { id: 'wrong-1', questionId: 'q-ec2-host', topicId: 'ec2', concept: 'Dedicated Hosts vs Dedicated Instances', explanation: 'Host-level visibility is the clue for Dedicated Hosts.' },
-  { id: 'wrong-2', questionId: 'q-ebs-snapshot', topicId: 'ebs', concept: 'EBS snapshots', explanation: 'Snapshots are point-in-time backups that can create new volumes.' },
-  { id: 'wrong-3', questionId: 'q-iam-role', topicId: 'iam', concept: 'IAM roles for EC2', explanation: 'An instance role provides temporary credentials without stored keys.' },
-];
-
-export function getTopic(id: string) {
-  return topics.find((topic) => topic.id === id);
-}
